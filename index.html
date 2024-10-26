@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        /* تصميم الصفحة */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #74ebd5, #acb6e5);
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* تصميم الأزرار */
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn, .delete-btn {
+            font-size: 2rem;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .upload-btn:hover { 
+            background-color: #2980b9; 
+            transform: scale(1.1);
+        }
+
+        .delete-btn { 
+            background-color: #e74c3c; 
+        }
+
+        .delete-btn:hover { 
+            background-color: #c0392b; 
+            transform: scale(1.1);
+        }
+
+        /* تصميم معرض الصور */
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            width: 100%;
+            max-width: 600px;
+            gap: 15px;
+            padding: 10px;
+            border: 2px dashed #fff;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+            max-height: 400px; /* ارتفاع ثابت للمعرض */
+        }
+
+        /* تصميم الصور المعروضة */
+        .preview-container {
+            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .preview {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            transition: transform 0.2s;
+        }
+
+        .preview:hover {
+            transform: scale(1.05);
+        }
+
+        /* زر حذف لكل صورة */
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: #e74c3c;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .remove-btn:hover { 
+            background-color: #c0392b; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- أزرار إضافة وحذف -->
+    <div class="button-container">
+        <button class="upload-btn" onclick="openGallery()">+</button>
+        <button class="delete-btn" onclick="clearGallery()">-</button>
+    </div>
+    
+    <!-- إدخال ملف مخفي لاختيار الصور -->
+    <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple onchange="previewImages(event)">
+
+    <!-- معرض الصور -->
+    <div class="gallery" id="gallery"></div>
+
+    <!-- إضافة ملف الصوت -->
+    <audio id="clickSound" src="click-sound.mp3"></audio>
+
+    <script>
+        // تشغيل الصوت عند الضغط على الزر
+        function playSound() {
+            const sound = document.getElementById('clickSound');
+            sound.currentTime = 0; // إعادة تشغيل الصوت من البداية
+            sound.play();
+        }
+
+        // فتح المعرض
+        function openGallery() {
+            playSound(); // تشغيل الصوت
+            document.getElementById('fileInput').click(); // فتح حوار اختيار الصور
+        }
+
+        // عرض الصور المختارة
+        function previewImages(event) {
+            const files = event.target.files;
+            const gallery = document.getElementById('gallery');
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewContainer = document.createElement('div');
+                    previewContainer.classList.add('preview-container');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('preview');
+                    
+                    // زر إزالة الصورة
+                    const removeBtn = document.createElement('button');
+                    removeBtn.innerText = "×";
+                    removeBtn.classList.add('remove-btn');
+                    removeBtn.onclick = function() {
+                        previewContainer.remove(); // إزالة الصورة من المعرض
+                    };
+
+                    previewContainer.appendChild(img);
+                    previewContainer.appendChild(removeBtn);
+                    gallery.insertBefore(previewContainer, gallery.firstChild); // إضافة الصورة من الأعلى
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // مسح المعرض
+        function clearGallery() {
+            playSound(); // تشغيل الصوت عند المسح
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = ''; // حذف جميع الصور
+        }
+    </script>
+
+</body>
+</html>
